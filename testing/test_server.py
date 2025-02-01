@@ -39,4 +39,4 @@ while True:
     conn.send(res)
 
     # завершение сеанса соединения
-    conn.close()
+    # conn.close()

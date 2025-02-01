@@ -1,6 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow
-import sys
 
 
 class Client(QMainWindow):
@@ -70,9 +69,3 @@ class Client(QMainWindow):
             self.message.clear()
 
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    client = Client()
-    client.setup_ui()
-    client.show()
-    sys.exit(app.exec_())
