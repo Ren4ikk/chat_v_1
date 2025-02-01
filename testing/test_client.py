@@ -1,6 +1,6 @@
 import socket
 
-HOST = (socket.gethostname(), 20_000)
+HOST = ('178.20.45.76', 20_000)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # от созданного клиентского сокета коннектимся к созданному серверу
