@@ -73,7 +73,7 @@ class Client(QMainWindow):
             self.receive_thread.daemon = True
             self.receive_thread.start()
         except Exception as e:
-            self.show_message(f"Ошибка подключения к серверу: {e}")
+            self.show_message(f"Ошибка подключения к серверу: {e}", is_author=True)
 
     def send_message(self):
         """Отправка сообщения серверу"""
@@ -81,10 +81,10 @@ class Client(QMainWindow):
         if message_text:
             try:
                 self.client_socket.sendall(message_text.encode())
-                self.show_message(f"Вы: {message_text}")
+                self.show_message(f"Вы: {message_text}", is_author=True)
                 self.message_input.clear()
             except Exception as e:
-                self.show_message(f"Ошибка отправки сообщения: {e}")
+                self.show_message(f"Ошибка отправки сообщения: {e}", is_author=True)
 
     def receive_messages(self):
         """Получение сообщений от сервера"""
@@ -109,20 +109,52 @@ class Client(QMainWindow):
                 # В случае ошибки соединения выводим сообщение об ошибке
                 break
 
-    def show_message(self, text):
-        """Отображение сообщения в чате"""
+    def show_message(self, text, is_author=False):
+        """Отображение сообщения в чате с выравниванием пузырьков"""
+
+        # Создаём контейнер для каждого сообщения
+        message_container = QtWidgets.QWidget()
+        message_layout = QtWidgets.QHBoxLayout(message_container)
+        message_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Создаём сам пузырёк сообщения
         message_label = QLabel(text)
-        message_label.setStyleSheet("""
-            QLabel {
-                background-color: #DCF8C6;
-                border: 1px solid #34B7F1;
-                border-radius: 10px;
-                padding: 8px;
-                margin: 5px;
-                font-size: 14px;
-            }
-        """)
-        self.messages_layout.insertWidget(self.messages_layout.count() - 1, message_label)
+        message_label.setWordWrap(True)
+        message_label.setMaximumWidth(400)
+        message_label.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
+
+        # Стилизация сообщения
+        if is_author:
+            message_label.setStyleSheet("""
+                QLabel {
+                    background-color: #DCF8C6;  /* Светло-зелёный фон для сообщений автора */
+                    border: 1px solid #34B7F1;
+                    border-radius: 10px;
+                    padding: 8px;
+                    margin: 5px;
+                    font-size: 14px;
+                }
+            """)
+            # Spacer слева для выравнивания вправо
+            message_layout.addStretch()
+            message_layout.addWidget(message_label)
+        else:
+            message_label.setStyleSheet("""
+                QLabel {
+                    background-color: #FFFFFF;  /* Белый фон для сообщений собеседника */
+                    border: 1px solid #34B7F1;
+                    border-radius: 10px;
+                    padding: 8px;
+                    margin: 5px;
+                    font-size: 14px;
+                }
+            """)
+            # Spacer справа для выравнивания влево
+            message_layout.addWidget(message_label)
+            message_layout.addStretch()
+
+        # Добавляем контейнер с сообщением в общий layout
+        self.messages_layout.insertWidget(self.messages_layout.count() - 1, message_container)
         self.scroll_to_bottom()
 
     def scroll_to_bottom(self):

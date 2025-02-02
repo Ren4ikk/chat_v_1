@@ -28,7 +28,6 @@ def broadcast(message, sender_socket):
                 clients.remove(client)  # Удаляем клиента из списка подключённых
 
 
-
 def handle_client(client_socket, addr):
     """Обработка каждого клиента в отдельном потоке."""
     print(f"Подключен клиент {addr}")
