@@ -1,4 +1,4 @@
-# сервер
+# Исправленный код сервера
 import socket
 import threading
 
@@ -18,13 +18,15 @@ clients = []  # Список подключенных клиентов
 
 def broadcast(message, sender_socket):
     """Рассылка сообщения всем клиентам, кроме отправителя."""
+    message += b'\n'  # Добавляем разделитель новой строки для корректного разделения сообщений на стороне клиента
     for client in clients:
-        if client != sender_socket:
+        if client != sender_socket:  # Проверяем, что это не тот клиент, который отправил сообщение
             try:
-                client.sendall(message)
+                client.sendall(message)  # Отправляем сообщение клиенту
             except:
-                client.close()
-                clients.remove(client)
+                client.close()  # В случае ошибки закрываем соединение
+                clients.remove(client)  # Удаляем клиента из списка подключённых
+
 
 
 def handle_client(client_socket, addr):
@@ -37,7 +39,7 @@ def handle_client(client_socket, addr):
             message = client_socket.recv(1024)
             if not message:
                 break
-            print(f"Сообщение от {addr}: {message.decode()}")
+            print(f"Сообщение от {addr}: {message.decode().strip()}")
             broadcast(message, client_socket)
     except (ConnectionResetError, BrokenPipeError):
         print(f"Соединение с {addr} потеряно.")
