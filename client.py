@@ -6,7 +6,7 @@ import socket
 import threading
 import sys
 
-HOST = ('178.20.45.76', 20000)  # Замените на реальный IP сервера при необходимости
+HOST = ('178.20.45.76', 20000)
 
 
 class Client(QMainWindow):
@@ -55,6 +55,9 @@ class Client(QMainWindow):
         self.opened_chat_layout.addWidget(self.scroll_area)
         self.opened_chat_layout.addLayout(self.message_layout)
 
+        # устанавливаем размеры по умочланию правой и левой частей сплиттера
+        self.splitter.setSizes([200, 680])
+
         self.connect_signals()
         self.create_client()
 
@@ -81,7 +84,7 @@ class Client(QMainWindow):
         if message_text:
             try:
                 self.client_socket.sendall(message_text.encode())
-                self.show_message(f"Вы: {message_text}", is_author=True)
+                self.show_message(message_text, is_author=True)
                 self.message_input.clear()
             except Exception as e:
                 self.show_message(f"Ошибка отправки сообщения: {e}", is_author=True)
@@ -102,7 +105,7 @@ class Client(QMainWindow):
                     # message - полное сообщение до '\n'
                     # buffer - оставшиеся данные после '\n' (могут быть частью следующего сообщения)
 
-                    self.new_message_signal.emit(f"Другой клиент: {message}")
+                    self.new_message_signal.emit(message)
                     # Посылаем сигнал для отображения сообщения в интерфейсе
             except:
                 self.new_message_signal.emit("Отключение от сервера.")
