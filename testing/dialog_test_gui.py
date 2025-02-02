@@ -3,13 +3,16 @@
 """
 
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QScrollArea, QLineEdit, QPushButton, \
+    QHBoxLayout, QFileDialog
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 
 
 class ChatWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Чат с прокруткой')
+        self.setWindowTitle('Чат с изображениями')
         self.setGeometry(100, 100, 400, 500)
 
         self.layout = QVBoxLayout(self)
@@ -21,18 +24,22 @@ class ChatWindow(QWidget):
         # Контейнер для сообщений
         self.messages_container = QWidget()
         self.messages_layout = QVBoxLayout(self.messages_container)
-        self.messages_layout.addStretch(1)  # Чтобы сообщения сжимались к верху
+        self.messages_layout.addStretch(1)
 
         self.scroll_area.setWidget(self.messages_container)
         self.layout.addWidget(self.scroll_area)
 
-        # Поле ввода и кнопка отправки
+        # Поле ввода текста и кнопки
         self.input_layout = QHBoxLayout()
         self.message_input = QLineEdit(self)
         self.send_button = QPushButton("Отправить", self)
         self.send_button.clicked.connect(self.add_message)
 
+        self.image_button = QPushButton("📷", self)  # Кнопка для загрузки изображения
+        self.image_button.clicked.connect(self.add_image)
+
         self.input_layout.addWidget(self.message_input)
+        self.input_layout.addWidget(self.image_button)
         self.input_layout.addWidget(self.send_button)
 
         self.layout.addLayout(self.input_layout)
@@ -42,8 +49,6 @@ class ChatWindow(QWidget):
         if text:
             message_label = QLabel(text, self)
             message_label.setWordWrap(True)
-
-            # Стилизация "пузыря" сообщения
             message_label.setStyleSheet("""
                 QLabel {
                     background-color: #DCF8C6;
@@ -54,13 +59,36 @@ class ChatWindow(QWidget):
                     font-size: 14px;
                 }
             """)
-
-            # Добавляем сообщение и прокручиваем вниз
             self.messages_layout.insertWidget(self.messages_layout.count() - 1, message_label)
             self.message_input.clear()
+            self.scroll_to_bottom()
 
-            # Прокрутка к последнему сообщению
-            self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
+    def add_image(self):
+        file_dialog = QFileDialog()
+        image_path, _ = file_dialog.getOpenFileName(self, "Выбрать изображение", "",
+                                                    "Images (*.png *.xpm *.jpg *.jpeg *.bmp)")
+
+        if image_path:
+            image_label = QLabel(self)
+            pixmap = QPixmap(image_path)
+            scaled_pixmap = pixmap.scaled(200, 200, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            image_label.setPixmap(scaled_pixmap)
+
+            image_label.setStyleSheet("""
+                QLabel {
+                    border: 1px solid #34B7F1;
+                    border-radius: 10px;
+                    padding: 5px;
+                    margin: 5px;
+                    background-color: #F0F0F0;
+                }
+            """)
+
+            self.messages_layout.insertWidget(self.messages_layout.count() - 1, image_label)
+            self.scroll_to_bottom()
+
+    def scroll_to_bottom(self):
+        self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
 
 
 if __name__ == "__main__":
